@@ -62,4 +62,37 @@ defmodule AOC.Day3.Test do
     assert AOC.Day3.get_priority("A") == 27
     assert AOC.Day3.get_priority("Z") == 52
   end
+
+  test "add_badges_and_prios/1" do
+    # Every set of three lines in your list corresponds to a single
+    # group, but each group can have a different badge item type.
+    groups = [
+      [
+        "vJrwpWtwJgWrhcsFMMfFFhFp",
+        "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+        "PmmdzqPrVvPwwTWBwg"
+      ],
+      [
+        "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
+        "ttgJtRGJQctTZtZT",
+        "CrZsJsPPZsGzwwsLwLmpwMDw"
+      ]
+    ]
+
+    [first, second] =
+      AOC.Day3.add_badges_and_prios(groups)
+      |> Enum.to_list()
+
+    # In the first group, the only item type that appears in all
+    # three rucksacks is lowercase r; this must be their badges.
+    # In the second group, their badge item type must be Z.
+    assert first.badge == "r"
+    assert second.badge == "Z"
+
+    # Priorities for these items must still be found to organize the
+    # sticker attachment efforts: here, they are 18 (r) for the first
+    # group and 52 (Z) for the second group.
+    assert first.priority == 18
+    assert second.priority == 52
+  end
 end

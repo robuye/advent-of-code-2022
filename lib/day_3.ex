@@ -8,13 +8,50 @@ defmodule AOC.Day3 do
               |> Enum.into(%{})
               |> Map.put("", 0)
 
-  import Stream, only: [map: 2]
+  import Stream,
+    only: [
+      map: 2,
+      chunk_every: 2
+    ]
 
   def find_the_answer_p1() do
     stream_from_file()
     |> split_into_compartments()
     |> add_common_elements()
     |> sum_priorities_of_common_elements()
+  end
+
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> chunk_every(3)
+    |> add_badges_and_prios()
+    |> sum_groups_prios()
+  end
+
+  def sum_groups_prios(groups) do
+    groups
+    |> map(& &1.priority)
+    |> Enum.sum()
+  end
+
+  def add_badges_and_prios(groups) do
+    groups
+    |> map(fn [one, two, three] ->
+      badge =
+        MapSet.intersection(
+          String.to_charlist(one) |> MapSet.new(),
+          String.to_charlist(two) |> MapSet.new()
+        )
+        |> MapSet.intersection(String.to_charlist(three) |> MapSet.new())
+        |> Enum.to_list()
+        |> to_string()
+
+      %{
+        members: [one, two, three],
+        badge: badge,
+        priority: get_priority(badge)
+      }
+    end)
   end
 
   def sum_priorities_of_common_elements(runsacks) do
