@@ -12,9 +12,22 @@ defmodule AOC.Day2 do
     "Z" => :scissors
   }
 
+  @codes_v2 %{
+    "X" => :lose,
+    "Y" => :draw,
+    "Z" => :win
+  }
+
   def find_the_answer_p1() do
     stream_from_file()
     |> translate_codes()
+    |> play_the_game()
+    |> sum_up_scores()
+  end
+
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> translate_codes_v2()
     |> play_the_game()
     |> sum_up_scores()
   end
@@ -25,12 +38,22 @@ defmodule AOC.Day2 do
     |> map(&String.split/1)
   end
 
+  def translate_codes_v2(moves) do
+    moves
+    |> map(fn [opponent, code] ->
+      [
+        @codes[opponent],
+        select_v2_move(@codes[opponent], @codes_v2[code])
+      ]
+    end)
+  end
+
   def translate_codes(moves) do
     moves
     |> map(fn [opponent, you] ->
       [
         @codes[opponent],
-        @codes[you]
+        select_v1_move(you)
       ]
     end)
   end
@@ -77,4 +100,16 @@ defmodule AOC.Day2 do
 
   def is_draw?(l, r) when l == r, do: true
   def is_draw?(_, _), do: false
+
+  def select_v1_move(code), do: @codes[code]
+
+  def select_v2_move(:rock, :win), do: :paper
+  def select_v2_move(:rock, :draw), do: :rock
+  def select_v2_move(:rock, :lose), do: :scissors
+  def select_v2_move(:paper, :win), do: :scissors
+  def select_v2_move(:paper, :draw), do: :paper
+  def select_v2_move(:paper, :lose), do: :rock
+  def select_v2_move(:scissors, :win), do: :rock
+  def select_v2_move(:scissors, :draw), do: :scissors
+  def select_v2_move(:scissors, :lose), do: :paper
 end

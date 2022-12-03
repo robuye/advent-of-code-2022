@@ -2,6 +2,12 @@ defmodule AOC.Day2.Test do
   use ExUnit.Case
 
   test "translate_codes/1" do
+    # "A" => :rock,
+    # "B" => :paper,
+    # "C" => :scissors,
+    # "X" => :rock,
+    # "Y" => :paper,
+    # "Z" => :scissors
     input = [
       ["A", "Z"],
       ["B", "Y"],
@@ -14,10 +20,35 @@ defmodule AOC.Day2.Test do
       |> Enum.to_list()
 
     assert output == [
-      [:rock, :scissors],
-      [:paper, :paper],
-      [:scissors, :rock]
+             [:rock, :scissors],
+             [:paper, :paper],
+             [:scissors, :rock]
+           ]
+  end
+
+  test "translate_codes_v2/1" do
+    # "A" => :rock,
+    # "B" => :paper,
+    # "C" => :scissors,
+    # "X" => :lose,
+    # "Y" => :draw,
+    # "Z" => :win
+    input = [
+      ["A", "Z"],
+      ["B", "Y"],
+      ["C", "X"]
     ]
+
+    output =
+      input
+      |> AOC.Day2.translate_codes_v2()
+      |> Enum.to_list()
+
+    assert output == [
+             [:rock, :paper],
+             [:paper, :paper],
+             [:scissors, :paper]
+           ]
   end
 
   test "play_the_game/1" do
