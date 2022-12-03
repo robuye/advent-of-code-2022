@@ -14,6 +14,13 @@ defmodule AOC.Day1 do
     |> get_most_cals()
   end
 
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> chunk_by_elf()
+    |> sum_up_cals()
+    |> get_sum_of_top_3()
+  end
+
   def stream_from_file() do
     File.stream!(@input_path)
     |> map(&String.trim/1)
@@ -38,5 +45,12 @@ defmodule AOC.Day1 do
   def get_most_cals(summed_cals) do
     summed_cals
     |> Enum.max()
+  end
+
+  def get_sum_of_top_3(summed_cals) do
+    summed_cals
+    |> Enum.sort(:desc)
+    |> Enum.take(3)
+    |> Enum.sum()
   end
 end

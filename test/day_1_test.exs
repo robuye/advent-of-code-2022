@@ -47,4 +47,14 @@ defmodule AOC.Day1.Test do
 
     assert output == 15
   end
+
+  test "get_sum_of_top_3/1" do
+    input = [6, 15, 15, 10, 8]
+
+    output =
+      input
+      |> AOC.Day1.get_sum_of_top_3()
+
+    assert output == 40
+  end
 end
