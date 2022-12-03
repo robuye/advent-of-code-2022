@@ -1,11 +1,12 @@
 defmodule AOC.Day1 do
   @input_path "data/day_1.txt"
 
-  import Stream, only: [
-    chunk_by: 2,
-    reject: 2,
-    map: 2
-  ]
+  import Stream,
+    only: [
+      chunk_by: 2,
+      reject: 2,
+      map: 2
+    ]
 
   def find_the_answer_p1() do
     stream_from_file()
@@ -34,7 +35,7 @@ defmodule AOC.Day1 do
   def chunk_by_elf(foods_cals) do
     foods_cals
     |> chunk_by(&is_nil/1)
-    |> reject(& &1 == [nil])
+    |> reject(&(&1 == [nil]))
   end
 
   def sum_up_cals(foods_cals) do

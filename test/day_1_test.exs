@@ -10,11 +10,11 @@ defmodule AOC.Day1.Test do
       |> Enum.to_list()
 
     assert output == [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 3],
-      [8]
-    ]
+             [1, 2, 3],
+             [4, 5, 6],
+             [7, 3],
+             [8]
+           ]
   end
 
   test "sum_up_cals/1" do
@@ -31,11 +31,11 @@ defmodule AOC.Day1.Test do
       |> Enum.to_list()
 
     assert output == [
-      6,
-      15,
-      10,
-      8
-    ]
+             6,
+             15,
+             10,
+             8
+           ]
   end
 
   test "get_most_cals/1" do
