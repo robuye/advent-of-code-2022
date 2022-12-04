@@ -12,6 +12,15 @@ defmodule AOC.Day4 do
     |> count_groups_overlaping_completely()
   end
 
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> to_maps()
+    |> split_pairs()
+    |> expand_ranges()
+    |> tag_contained_groups()
+    |> count_groups_overlaping_some()
+  end
+
   def stream_from_file() do
     File.stream!(@input_path)
     |> map(&String.trim/1)
@@ -55,12 +64,17 @@ defmodule AOC.Day4 do
   def tag_contained_groups(groups) do
     groups
     |> map(fn group ->
-      should_tag =
+      overlaps_all =
         contains_all?(group.elf_a, group.elf_b) ||
           contains_all?(group.elf_b, group.elf_a)
 
+      overlaps_some =
+        contains_any?(group.elf_a, group.elf_b) ||
+          contains_any?(group.elf_b, group.elf_a)
+
       group
-      |> Map.put(:overlaps_completely, should_tag)
+      |> Map.put(:overlaps_completely, overlaps_all)
+      |> Map.put(:overlaps_some, overlaps_some)
     end)
   end
 
@@ -68,8 +82,17 @@ defmodule AOC.Day4 do
     left.first <= right.first && left.last >= right.last
   end
 
+  def contains_any?(left, right) do
+    left.first <= right.last && right.last <= left.last
+  end
+
   def count_groups_overlaping_completely(groups) do
     groups
     |> Enum.count(& &1.overlaps_completely)
+  end
+
+  def count_groups_overlaping_some(groups) do
+    groups
+    |> Enum.count(& &1.overlaps_some)
   end
 end
