@@ -22,6 +22,13 @@ defmodule AOC.Day5 do
     |> read_top_items()
   end
 
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> translate_moves()
+    |> play_the_game_v2(@crates)
+    |> read_top_items()
+  end
+
   def stream_from_file() do
     File.stream!(@input_path)
     |> map(&String.trim/1)
@@ -59,6 +66,21 @@ defmodule AOC.Day5 do
         |> List.replace_at(move.from - 1, from_stack)
         |> List.replace_at(move.to - 1, to_stack)
       end)
+    end)
+  end
+
+  def play_the_game_v2(moves, crates) do
+    moves
+    |> Enum.reduce(crates, fn move, crates ->
+      from_stack = Enum.at(crates, move.from - 1)
+      to_stack = Enum.at(crates, move.to - 1)
+
+      {items_to_move, from_stack} = Enum.split(from_stack, move.count)
+      to_stack = items_to_move ++ to_stack
+
+      crates
+      |> List.replace_at(move.from - 1, from_stack)
+      |> List.replace_at(move.to - 1, to_stack)
     end)
   end
 

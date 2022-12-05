@@ -28,6 +28,20 @@ defmodule AOC.Day5.Test do
            ]
   end
 
+  test "play_the_game_v2/2" do
+    output =
+      @moves
+      |> AOC.Day5.translate_moves()
+      |> AOC.Day5.play_the_game_v2(@crates)
+      |> Enum.to_list()
+
+    assert output == [
+             ~w|M|,
+             ~w|C|,
+             ~w|D N Z P|
+           ]
+  end
+
   test "translate_moves/1" do
     output =
       [
