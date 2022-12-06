@@ -4,20 +4,23 @@ defmodule AOC.Day6 do
   def find_the_answer_p1(stream \\ nil) do
     (stream || read_from_file())
     |> String.to_charlist()
-    |> find_unique_four_idx()
-    |> add_one()
+    |> find_unique_n_characters_idx(4)
   end
 
-  def add_one(n), do: n + 1
+  def find_the_answer_p2(stream \\ nil) do
+    (stream || read_from_file())
+    |> String.to_charlist()
+    |> find_unique_n_characters_idx(14)
+  end
 
-  def find_unique_four_idx(data) do
+  def find_unique_n_characters_idx(data, num_chars) do
     data
-    |> Enum.reduce_while(3, fn _char, acc_idx ->
+    |> Enum.reduce_while(num_chars - 1, fn _char, acc_idx ->
       data
-      |> get_last_four(acc_idx)
+      |> get_last_n(acc_idx, num_chars)
       |> count_unique()
       |> case do
-        4 -> {:halt, acc_idx}
+        ^num_chars -> {:halt, acc_idx}
         _ -> {:cont, acc_idx + 1}
       end
     end)
@@ -28,9 +31,11 @@ defmodule AOC.Day6 do
     |> MapSet.size()
   end
 
-  def get_last_four(chars, cursor_pos) do
+  def get_last_n(chars, cursor_pos, num_to_take) do
+    start_at = cursor_pos - num_to_take
+
     chars
-    |> Enum.slice(cursor_pos - 3, 4)
+    |> Enum.slice(start_at, num_to_take)
   end
 
   def read_from_file() do
