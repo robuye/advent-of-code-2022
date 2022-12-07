@@ -45,4 +45,41 @@ defmodule AOC.Day7.Test do
 
     assert sum_sizes(output) == 95437
   end
+
+  test "find_the_answer_p2" do
+    input = [
+      "$ cd /",
+      "$ ls",
+      "dir a",
+      "14848514 b.txt",
+      "8504156 c.dat",
+      "dir d",
+      "$ cd a",
+      "$ ls",
+      "dir e",
+      "29116 f",
+      "2557 g",
+      "62596 h.lst",
+      "$ cd e",
+      "$ ls",
+      "584 i",
+      "$ cd ..",
+      "$ cd ..",
+      "$ cd d",
+      "$ ls",
+      "4060174 j",
+      "8033020 d.log",
+      "5626152 d.ext",
+      "7214296 k"
+    ]
+
+    output =
+      input
+      |> convert_input_to_data()
+      |> filter_directories()
+      |> sort_by_size()
+      |> find_candidate_to_delete()
+
+    assert output == {"d", 24_933_642}
+  end
 end

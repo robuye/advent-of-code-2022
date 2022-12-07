@@ -4,12 +4,23 @@ defmodule AOC.Day7 do
   import Stream, only: [map: 2, filter: 2]
   import Enum, only: [reduce: 3]
 
+  @total_disk_space 70_000_000
+  @needed_for_update 30_000_000
+
   def find_the_answer_p1() do
     stream_from_file()
     |> convert_input_to_data()
     |> filter_directories()
     |> filter_size_at_most(100_000)
     |> sum_sizes()
+  end
+
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> convert_input_to_data()
+    |> filter_directories()
+    |> sort_by_size()
+    |> find_candidate_to_delete()
   end
 
   def convert_input_to_data(inputs) do
@@ -44,7 +55,22 @@ defmodule AOC.Day7 do
     |> Enum.sum()
   end
 
-  ### helpers
+  def find_candidate_to_delete(tuples) do
+    used_space = Enum.into(tuples, %{})["/"]
+    avail_space = @total_disk_space - used_space
+    space_to_recover = @needed_for_update - avail_space
+
+    tuples
+    |> Enum.find(fn {_dir, size} ->
+      size >= space_to_recover
+    end)
+  end
+
+  def sort_by_size(tuples) do
+    tuples
+    |> Enum.sort(fn {_, s1}, {_, s2} -> s1 < s2 end)
+  end
+
   def filter_directory({k, v}) when is_map(v) do
     elem = [{k, v["_size"]}]
 
