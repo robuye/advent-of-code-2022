@@ -12,6 +12,14 @@ defmodule AOC.Day8 do
     |> Enum.count()
   end
 
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> parse_input()
+    |> add_scenic_scores()
+    |> Enum.flat_map(& &1)
+    |> Enum.max()
+  end
+
   def add_visibility_info(forest) do
     forest
     |> Enum.with_index()
@@ -27,6 +35,36 @@ defmodule AOC.Day8 do
 
         {tree, is_visible}
       end)
+    end)
+  end
+
+  def add_scenic_scores(forest) do
+    forest
+    |> Enum.with_index()
+    |> Enum.map(fn {row, pos_y} ->
+      row
+      |> Enum.with_index()
+      |> Enum.map(fn {tree, pos_x} ->
+        [
+          trees_from_top(forest, {pos_x, pos_y}),
+          trees_from_bottom(forest, {pos_x, pos_y}),
+          trees_from_left(forest, {pos_x, pos_y}),
+          trees_from_right(forest, {pos_x, pos_y})
+        ]
+        |> Enum.map(fn line -> calculate_line_score(tree, line) end)
+        |> Enum.reduce(1, fn score, total -> total * score end)
+      end)
+    end)
+  end
+
+  def calculate_line_score(tree, line_of_trees) do
+    line_of_trees
+    |> Enum.reduce_while(0, fn next_tree, score ->
+      if next_tree >= tree do
+        {:halt, score + 1}
+      else
+        {:cont, score + 1}
+      end
     end)
   end
 

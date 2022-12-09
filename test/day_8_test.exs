@@ -74,4 +74,23 @@ defmodule AOC.Day8.Test do
              [1, 7, 5, 6]
            ) == false
   end
+
+  test "find_the_answer_p2" do
+    input =
+      [
+        "30373",
+        "25512",
+        "65332",
+        "33549",
+        "35390"
+      ]
+      |> parse_input()
+
+    output =
+      input
+      |> add_scenic_scores()
+
+    assert get_tree(output, {2, 1}) == 4
+    assert get_tree(output, {2, 3}) == 8
+  end
 end
