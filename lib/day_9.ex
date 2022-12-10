@@ -6,21 +6,29 @@ defmodule AOC.Day9 do
   def find_the_answer_p1() do
     stream_from_file()
     |> parse_input()
-    |> play_the_game()
-    |> calculate_tail_visited_locations()
+    |> play_the_game(1)
+    |> calculate_tail_visited_locations(1)
   end
 
-  def calculate_tail_visited_locations(state) do
-    state.tail_visited
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> parse_input()
+    |> play_the_game(9)
+    |> calculate_tail_visited_locations(9)
+  end
+
+  def calculate_tail_visited_locations(state, tail_num) do
+    state.tails_visited
+    |> Map.get(tail_num, [{0, 0}])
     |> MapSet.new()
     |> MapSet.size()
   end
 
-  def play_the_game(moves) do
+  def play_the_game(moves, tails_num \\ 1) do
     state = %{
       head: {0, 0},
-      tail: {0, 0},
-      tail_visited: [{0, 0}]
+      tails_num: tails_num,
+      tails_visited: %{}
     }
 
     moves
@@ -50,23 +58,41 @@ defmodule AOC.Day9 do
       end
 
     head_after_move = {x + x_move, y + y_move}
-
-    tail_after_move = pull_in_tail(state.tail, head_after_move)
+    tails_after_move = pull_all_tails(state, head_after_move)
 
     state
     |> Map.put(:head, head_after_move)
-    |> Map.put(:tail, tail_after_move)
-    |> Map.get_and_update(:tail_visited, fn visited ->
-      if tail_after_move == state.tail,
-        do: {visited, visited},
-        else: {visited, [tail_after_move | visited]}
+    |> Map.update(:tails_visited, %{}, fn prev_tails ->
+      Map.merge(prev_tails, tails_after_move)
     end)
-    |> then(fn {_old, new} -> new end)
   end
 
-  def pull_in_tail(tail, head_after_move) do
+  def pull_all_tails(state, head_after_move) do
+    1..state.tails_num
+    |> Enum.reduce_while(state.tails_visited, fn num, acc ->
+      history = Map.get(acc, num, [{0, 0}])
+
+      last_pos = List.first(history)
+
+      pull_to =
+        if(num == 1,
+          do: head_after_move,
+          else: Map.get(acc, num - 1) |> List.first()
+        )
+
+      new_pos = pull_in_tail(last_pos, pull_to)
+
+      if last_pos == new_pos do
+        {:halt, acc}
+      else
+        {:cont, Map.put(acc, num, [new_pos | history])}
+      end
+    end)
+  end
+
+  def pull_in_tail(tail, pull_to) do
     {t_x, t_y} = tail
-    {h_x, h_y} = head_after_move
+    {h_x, h_y} = pull_to
 
     x_distance = h_x - t_x
     y_distance = h_y - t_y

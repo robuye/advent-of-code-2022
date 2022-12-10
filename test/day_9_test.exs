@@ -19,8 +19,27 @@ defmodule AOC.Day9.Test do
     output =
       input
       |> play_the_game()
-      |> IO.inspect(label: "output")
 
-    assert calculate_tail_visited_locations(output) == 13
+    assert calculate_tail_visited_locations(output, 1) == 13
+  end
+
+  test "find_the_answer_p2" do
+    input =
+      parse_input([
+        "R 5",
+        "U 8",
+        "L 8",
+        "D 3",
+        "R 17",
+        "D 10",
+        "L 25",
+        "U 20"
+      ])
+
+    output =
+      input
+      |> play_the_game(9)
+
+    assert calculate_tail_visited_locations(output, 9) == 36
   end
 end
