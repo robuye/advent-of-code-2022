@@ -24,4 +24,34 @@ defmodule AOC.Day10.Test do
 
     assert sum_up_strength_readings(output) == 13140
   end
+
+  test "find_the_anwer_p2" do
+    input =
+      @test_input_path
+      |> stream_from_file()
+      |> parse_input()
+
+    output =
+      input
+      |> run_instructions()
+      |> get_crt_screen()
+
+    assert Enum.at(output, 0) ==
+             "##..##..##..##..##..##..##..##..##..##.."
+
+    assert Enum.at(output, 1) ==
+             "###...###...###...###...###...###...###."
+
+    assert Enum.at(output, 2) ==
+             "####....####....####....####....####...."
+
+    assert Enum.at(output, 3) ==
+             "#####.....#####.....#####.....#####....."
+
+    assert Enum.at(output, 4) ==
+             "######......######......######......####"
+
+    assert Enum.at(output, 5) ==
+             "#######.......#######.......#######....."
+  end
 end

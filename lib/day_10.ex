@@ -8,17 +8,31 @@ defmodule AOC.Day10 do
     |> sum_up_strength_readings()
   end
 
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> parse_input()
+    |> run_instructions()
+    |> get_crt_screen()
+  end
+
   def sum_up_strength_readings(state) do
     state.signal_strength_readings
     |> Map.values()
     |> Enum.sum()
   end
 
+  def get_crt_screen(state) do
+    state.crt_pixels
+    |> Map.values()
+    |> Enum.map(fn line -> Enum.join(line, "") end)
+  end
+
   def run_instructions(commands) do
     initial_state = %{
       x: 1,
       global_cycle: 1,
-      signal_strength_readings: %{}
+      signal_strength_readings: %{},
+      crt_pixels: %{}
     }
 
     commands
@@ -27,8 +41,26 @@ defmodule AOC.Day10 do
       |> Enum.reduce(outer_state, fn op_cycle, inner_state ->
         inner_state
         |> record_signal_str()
+        |> render_crt_pixel()
         |> run_cycle(op, op_cycle)
         |> Map.put(:global_cycle, inner_state.global_cycle + 1)
+      end)
+    end)
+  end
+
+  def render_crt_pixel(%{global_cycle: cycle} = state) do
+    line_pos = div(cycle - 1, 40)
+    x_pos = rem(cycle - 1, 40)
+
+    sprite = Range.new(state.x - 1, state.x + 1)
+    pixel = if(Enum.member?(sprite, x_pos), do: "#", else: ".")
+
+    state
+    |> Map.update(:crt_pixels, %{}, fn crt_pixels ->
+      crt_pixels
+      |> Map.update(line_pos, [pixel], fn line_pixels ->
+        line_pixels
+        |> List.insert_at(-1, pixel)
       end)
     end)
   end
