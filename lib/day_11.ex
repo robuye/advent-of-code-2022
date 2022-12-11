@@ -4,18 +4,37 @@ defmodule AOC.Day11 do
   def find_the_answer_p1() do
     stream_from_file()
     |> parse_input()
-    |> play_the_game(20)
+    |> play_the_game(rounds: 20, div_by_three: true)
     |> get_the_busiest_monkeys(2)
     |> Enum.map(& &1.num_items_inspected)
-    |> Enum.reduce(1, fn n, acc -> acc * n end)
+    |> Enum.reduce(1, &(&1 * &2))
   end
 
-  def play_the_game(monkeys, rounds) do
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> parse_input()
+    |> play_the_game(rounds: 10000, div_by_three: false)
+    |> get_the_busiest_monkeys(2)
+    |> Enum.map(& &1.num_items_inspected)
+    |> Enum.reduce(1, &(&1 * &2))
+  end
+
+  def play_the_game(monkeys, opts \\ []) do
+    rounds = Keyword.get(opts, :rounds, 20)
+
+    div_by_three = Keyword.get(opts, :div_by_three, true)
+
+    modulo_all =
+      Map.values(monkeys)
+      |> Enum.map(& &1.test_divisor)
+      |> Enum.reduce(&(&1 * &2))
+
     1..rounds
     |> Enum.reduce(monkeys, fn _round, outer_acc ->
       Map.keys(monkeys)
       |> Enum.reduce(outer_acc, fn id, inner_acc ->
-        play_a_round(inner_acc, id)
+        inner_acc
+        |> play_a_round(id, div_by_three, modulo_all)
       end)
     end)
   end
@@ -27,13 +46,16 @@ defmodule AOC.Day11 do
     |> Enum.take(n)
   end
 
-  def play_a_round(all, id) do
+  def play_a_round(all, id, div_by_three, modulo_all) do
     monkey = Map.fetch!(all, id)
 
     {on_success_items, on_failure_items} =
       monkey.starting_items
       |> Enum.reduce({[], []}, fn item, acc ->
-        new_item = inspect_item(monkey.operation, item)
+        new_item =
+          inspect_item(monkey.operation, item)
+          |> then(&if div_by_three, do: div(&1, 3), else: &1)
+          |> rem(modulo_all)
 
         {success_items, failure_items} = acc
 
@@ -73,7 +95,6 @@ defmodule AOC.Day11 do
     {mod, fun, args} = operation
 
     apply(mod, fun, [level | args])
-    |> div(3)
   end
 
   def parse_input(lines) do
