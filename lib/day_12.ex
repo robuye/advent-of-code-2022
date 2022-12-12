@@ -8,11 +8,28 @@ defmodule AOC.Day12 do
     |> then(& &1.step)
   end
 
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> parse_input()
+    |> update_starting_positions("a")
+    |> play_the_game()
+    |> then(& &1.step)
+  end
+
+  def update_starting_positions(board, starting_letter) do
+    board
+    |> Enum.map(fn x ->
+      if x.char == starting_letter,
+        do: %{x | is_starting: true},
+        else: x
+    end)
+  end
+
   def play_the_game(board) do
-    {start_at, complete_at} = find_start_end(board)
+    {starting_positions, complete_at} = find_start_end(board)
 
     initial_state = %{
-      queue: MapSet.new([start_at]),
+      queue: MapSet.new(starting_positions),
       visited: MapSet.new([]),
       steps: 0
     }
@@ -37,7 +54,7 @@ defmodule AOC.Day12 do
 
   def find_start_end(board) do
     {
-      Enum.find(board, & &1.is_starting),
+      Enum.filter(board, & &1.is_starting),
       Enum.find(board, & &1.is_ending)
     }
   end

@@ -19,4 +19,13 @@ defmodule AOC.Day12.Test do
 
     assert output.step == 31
   end
+
+  test "find_the_answer_p2" do
+    output =
+      @input
+      |> update_starting_positions("a")
+      |> play_the_game()
+
+    assert output.step == 29
+  end
 end
