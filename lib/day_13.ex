@@ -4,8 +4,44 @@ defmodule AOC.Day13 do
   def find_the_answer_p1() do
     stream_from_file()
     |> parse_input()
+    |> chunk_by_two()
     |> validate_pairs()
     |> sum_valid_indices()
+  end
+
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> parse_input()
+    |> add_dividers()
+    |> sort_packets()
+    |> multiply_divider_indices()
+  end
+
+  def multiply_divider_indices(data) do
+    data
+    |> Enum.with_index()
+    |> Enum.filter(fn
+      {[2], _} -> true
+      {[6], _} -> true
+      _ -> false
+    end)
+    |> Enum.map(&(elem(&1, 1) + 1))
+    |> Enum.product()
+  end
+
+  def add_dividers(data) do
+    data ++ [[2]] ++ [[6]]
+  end
+
+  def sort_packets(data) do
+    data
+    |> Enum.sort(fn a, b ->
+      compare_values(a, b)
+      |> case do
+        nil -> true
+        other -> other
+      end
+    end)
   end
 
   def sum_valid_indices(results) do
@@ -21,11 +57,13 @@ defmodule AOC.Day13 do
     |> Enum.map(fn {a, b} -> compare_values(a, b) end)
   end
 
-  def compare_values(a, b) when is_integer(a) and is_list(b), do:
+  def compare_values(a, b) when is_integer(a) and is_list(b) do
     compare_values([a], b)
+  end
 
-  def compare_values(a, b) when is_list(a) and is_integer(b), do:
+  def compare_values(a, b) when is_list(a) and is_integer(b) do
     compare_values(a, [b])
+  end
 
   def compare_values(_a, nil), do: false
 
@@ -61,6 +99,10 @@ defmodule AOC.Day13 do
       {result, _bindings} = Code.eval_string(line)
       result
     end)
+  end
+
+  def chunk_by_two(items) do
+    items
     |> Enum.chunk_every(2)
     |> Enum.map(fn [lhs, rhs] -> {lhs, rhs} end)
   end
@@ -69,7 +111,7 @@ defmodule AOC.Day13 do
     (path || @input_path)
     |> File.stream!()
     |> Stream.map(&String.trim/1)
-    |> Stream.reject(& &1 == "")
+    |> Stream.reject(&(&1 == ""))
     |> Enum.to_list()
   end
 end
