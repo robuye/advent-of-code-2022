@@ -36,6 +36,13 @@ defmodule AOC.Day14 do
   def drop_sand(rocks, start_from) do
     rocks = rocks |> Map.put(:_path, [])
 
+    max_y =
+      rocks
+      |> Map.drop([:_path])
+      |> Map.keys()
+      |> Enum.map(fn {_x, y} -> y end)
+      |> Enum.max()
+
     Stream.iterate(0, &(&1 + 1))
     |> Enum.reduce_while({0, rocks}, fn step, {_idx, memo} ->
       drop_from = Enum.at(memo._path, 0) || start_from
@@ -46,26 +53,19 @@ defmodule AOC.Day14 do
           path
           |> List.delete_at(0)
         end)
-        |> make_next_move(drop_from)
+        |> make_next_move(drop_from, max_y)
 
       {op, {step, new_rocks}}
     end)
     |> then(fn {count, _} -> count end)
   end
 
-  def make_next_move(rocks, {sand_x, sand_y}) do
+  def make_next_move(rocks, {sand_x, sand_y}, max_y) do
     sand = {sand_x, sand_y}
 
     go_down = {sand_x, sand_y + 1}
     go_left_down = {sand_x - 1, sand_y + 1}
     go_right_down = {sand_x + 1, sand_y + 1}
-
-    max_y =
-      rocks
-      |> Map.drop([:_path])
-      |> Map.keys()
-      |> Enum.map(fn {_x, y} -> y end)
-      |> Enum.max()
 
     next_pos =
       [
@@ -82,7 +82,7 @@ defmodule AOC.Day14 do
       next_pos ->
         rocks
         |> Map.update(:_path, [sand], fn prev -> [sand | prev] end)
-        |> make_next_move(next_pos)
+        |> make_next_move(next_pos, max_y)
 
       !Map.has_key?(rocks, sand) ->
         new_rocks =
