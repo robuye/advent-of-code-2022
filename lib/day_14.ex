@@ -5,31 +5,65 @@ defmodule AOC.Day14 do
     stream_from_file()
     |> parse_input()
     |> expand_coordinates()
-    |> flatten_all()
+    |> to_map()
     |> drop_sand({500, 0})
   end
 
-  def drop_sand(rocks, drop_from) do
-    0..1000
-    |> Enum.reduce_while({0, rocks}, fn _step, {idx, memo} ->
-      new_rocks = make_next_move(memo, drop_from)
+  def find_the_answer_p2() do
+    stream_from_file()
+    |> parse_input()
+    |> add_floor_layer()
+    |> expand_coordinates()
+    |> to_map()
+    |> drop_sand({500, 0})
+  end
 
-      if new_rocks == memo do
-        {:halt, {idx, rocks}}
-      else
-        {:cont, {idx + 1, new_rocks}}
-      end
+  def add_floor_layer(rocks) do
+    max_y =
+      rocks
+      |> Enum.flat_map(& &1)
+      |> Enum.map(fn {_x, y} -> y end)
+      |> Enum.max()
+
+    floor_line = [
+      {300, max_y + 2},
+      {700, max_y + 2}
+    ]
+
+    [floor_line | rocks]
+  end
+
+  def drop_sand(rocks, start_from) do
+    rocks = rocks |> Map.put(:_path, [])
+
+    Stream.iterate(0, &(&1 + 1))
+    |> Enum.reduce_while({0, rocks}, fn step, {_idx, memo} ->
+      drop_from = Enum.at(memo._path, 0) || start_from
+
+      {op, new_rocks} =
+        memo
+        |> Map.update(:_path, [], fn path ->
+          path
+          |> List.delete_at(0)
+        end)
+        |> make_next_move(drop_from)
+
+      {op, {step, new_rocks}}
     end)
     |> then(fn {count, _} -> count end)
   end
 
   def make_next_move(rocks, {sand_x, sand_y}) do
+    sand = {sand_x, sand_y}
+
     go_down = {sand_x, sand_y + 1}
     go_left_down = {sand_x - 1, sand_y + 1}
     go_right_down = {sand_x + 1, sand_y + 1}
 
     max_y =
       rocks
+      |> Map.drop([:_path])
+      |> Map.keys()
       |> Enum.map(fn {_x, y} -> y end)
       |> Enum.max()
 
@@ -39,25 +73,34 @@ defmodule AOC.Day14 do
         go_left_down,
         go_right_down
       ]
-      |> Enum.find(&(&1 not in rocks))
+      |> Enum.find(&(!Map.has_key?(rocks, &1)))
 
-    # drop further if possible, otherwise settle and return new rocks
     cond do
-      sand_y > max_y ->
-        rocks
+      sand_y > max_y + 3 ->
+        {:halt, rocks}
 
       next_pos ->
-        make_next_move(rocks, next_pos)
+        rocks
+        |> Map.update(:_path, [sand], fn prev -> [sand | prev] end)
+        |> make_next_move(next_pos)
+
+      !Map.has_key?(rocks, sand) ->
+        new_rocks =
+          rocks
+          |> Map.put(sand, true)
+
+        {:cont, new_rocks}
 
       true ->
-        [{sand_x, sand_y} | rocks]
+        {:halt, rocks}
     end
   end
 
-  def flatten_all(data) do
+  def to_map(data) do
     data
     |> Enum.flat_map(& &1)
-    |> Enum.sort(fn {_, y1}, {_, y2} -> y1 < y2 end)
+    |> Enum.map(&{&1, true})
+    |> Enum.into(%{})
   end
 
   def expand_coordinates(lines) do

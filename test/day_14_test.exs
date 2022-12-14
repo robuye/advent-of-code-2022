@@ -17,9 +17,20 @@ defmodule AOC.Day14.Test do
     output =
       @input
       |> expand_coordinates()
-      |> flatten_all()
+      |> to_map()
       |> drop_sand({500, 0})
 
     assert output == 24
+  end
+
+  test "find_the_answer_p2" do
+    output =
+      @input
+      |> add_floor_layer()
+      |> expand_coordinates()
+      |> to_map()
+      |> drop_sand({500, 0})
+
+    assert output == 93
   end
 end
